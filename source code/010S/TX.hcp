@@ -1,0 +1,35 @@
+[Project]
+Project=HC-ICE
+[File Count]
+Count=6
+[Project Files]
+File0=HC18P010S.INC
+File1=key.inc
+File2=led.inc
+File3=MAIN.ASM
+File4=REG.inc
+File5=sleep.inc
+[Settings]
+Device=HC18P010A
+ConfigBitValue0=1
+ConfigBitValue1=64
+ConfigBitValue2=246
+Output=.
+PostBuild=0
+PostBuildCommand=
+[Files]
+File0=E:\项目\RICK\RGB棒\SOURCE CODE\010S\KEY.INC|3 75 957 75 524
+File1=E:\项目\RICK\RGB棒\SOURCE CODE\010S\REG.INC|1 25 907 25 474
+File2=E:\项目\RICK\RGB棒\SOURCE CODE\010S\MAIN.ASM|1 0 878 0 445
+OpenFileCounts=6
+File3=E:\项目\RICK\RGB棒\SOURCE CODE\010S\SLEEP.INC|1 150 1032 150 599
+File4=E:\项目\RICK\RGB棒\SOURCE CODE\010S\LED.INC|1 125 1007 125 574
+File5=E:\项目\RICK\RGB棒\SOURCE CODE\010S\HC18P010S.INC|1 100 982 100 549
+[Break]
+Count=0
+[Watch0]
+Count=0
+[Watch1]
+Count=0
+[Watch2]
+Count=0
