@@ -5,13 +5,10 @@
 ;*********************************************************
 sleep_proc:
 
-	BTFSS	f_sleep
-	GOTO	sleep_proc_end
 	BCF	f_sleep	
-	
+	;关机睡眠前清零计数器和标志位	
 	clrf	mode1
 	clrf	mode2
-	bsf	f_sleep
 	bsf	Vol
 	bcf	LedRed
 	bcf	LedGreen
@@ -40,6 +37,14 @@ sleep_proc:
 	BCF	RBIF		;PBIF
 	BSF	WDTENS		;WDTEN
 	BSF	GIE	
+	bsf	f_status_on
+	bsf	f_keylock			;防止按键在唤醒睡眠的同时重复触发
+	movlw	d'100'
+	movwf	set_vol_duty
+	movlw	d'64'
+	movwf	set_red_led_duty
+	clrf	set_green_led_duty
+	clrf	set_blue_led_duty
 	
 sleep_proc_end:
 

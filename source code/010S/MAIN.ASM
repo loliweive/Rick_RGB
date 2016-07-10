@@ -4,17 +4,19 @@
 	#include "reg.inc"
 
 
+
 ;********************************************
 ;               code start                  
 ;********************************************
 
-        org     0000h	
-        goto    reset  
-        goto    reset   
+	org     0000h	
+	goto    reset  
+ 	goto    reset   
 	goto    reset   
-        goto    reset        
+	goto    reset        
                 
-        org     0004h  						
+	org     0004h  	
+					
 int_start:		
 
 	movwf	w_temp
@@ -32,12 +34,12 @@ int_start:
 int_timeflag:
 	
 	incf	cnt_200us,f
-	movlw	d'25'		;15或者16均可以
+	movlw	d'25'		
 	subwf	cnt_200us,w
 	btfss	C
 	goto	int_timeflag_end
 	clrf	cnt_200us
-	bsf	f_5ms		;串口发送bit间隔
+	bsf	f_5ms		
 int_timeflag_end:
 
 ;****************************
@@ -45,15 +47,15 @@ int_timeflag_end:
 ;****************************	
 vol_pwm:
 
-	incf	cnt_vol_duty,f		;分100级
 	movlw	d'100'
 	xorwf	cnt_vol_duty,w
 	btfsc	Z
 	clrf	cnt_vol_duty
+	incf	cnt_vol_duty,f		;分100级,1~100
 	movf	cnt_vol_duty,w
 	subwf	set_vol_duty,w
-	btfsc	C
-	goto	vol_output_h		;pwm high first,set>cnt
+	btfss	C
+	goto	vol_output_h		;pwm low first,(PNP)low = light,set>cnt
 vol_output_l:
 
 	bcf	Vol
@@ -69,11 +71,12 @@ vol_pwm_end:
 ;;;;;;;;;LED PWM
 ;****************************
 led_pwm:
-	incf	cnt_led_duty,f		;分64级
+
 	movlw	d'64'
 	xorwf	cnt_led_duty,w
 	btfsc	Z
 	clrf	cnt_led_duty
+	incf	cnt_led_duty,f		;分64级,1~64
 	
 ;----------red led-------------	
 red_led_pwm:
@@ -149,7 +152,7 @@ mainloop:
 	call	mode2_proc
 	goto	mainloop
 
-;-------------------------------------------
+;----------------mode1---------------------
 
 mode1_proc:
 
@@ -165,25 +168,25 @@ mode1_switch:
 	goto	half_brightness
 	goto	breathe
 	goto	flash
-;---------------------	
+;---------------------全亮	
 whole_brightness:
 
-	movlw	d'99'
+	movlw	d'100'
 	movwf	set_vol_duty
 ;	goto	mode1_proc_end
 whole_brightness_end:
 	return
-;---------------------	
 	
+;---------------------半亮	
 half_brightness:
 
-	movlw	d'49'
+	movlw	d'50'
 	movwf	set_vol_duty
 ;	goto	mode1_proc_end
 half_brightness_end:
 	return
-;---------------------	
 	
+;---------------------呼吸灯
 breathe:
 	
 	incf	cnt_5ms,f
@@ -191,7 +194,7 @@ breathe:
 	subwf	cnt_5ms,w
 	btfss	C
 	goto	breathe_end
-	clrf	cnt_5ms
+	clrf	cnt_5ms			;15ms延时，每15ms刷新一次set_vol_duty
 	btfss	f_down_breathe
 	goto	inc_set_duty
 dec_set_duty:
@@ -211,8 +214,8 @@ inc_set_duty:
 ;	goto	breathe_end
 breathe_end:
 	return
-;---------------------	
-
+	
+;---------------------10hz爆闪	
 flash:
 
 	incf	cnt_5ms,f
@@ -223,7 +226,7 @@ flash:
 	clrf	cnt_5ms
 	movlw	b'10000000'
 	xorwf	flag_byte,f
-	btfss	f_flash
+	btfsc	f_flash
 	goto	flash_h
 flash_l:
 
@@ -243,8 +246,8 @@ flash_end:
 mode1_proc_end:
 
 	return	
-;-----------------------------------------------
-
+	
+;----------------mode2------------------------
 mode2_proc:
 
 	movlw	high	mode2_tab_red
@@ -341,10 +344,13 @@ mode2_tab_blue:
 mode2_proc_end:
 
 	return
-	
+;-----------------------------	
+	#include "sleep.inc"
+	#include "sub.inc"
+	#include "key.inc" 		;此包含可放在0~3ff中间任何位置
+
 ;********************************************
-       #include "key.inc" 		;此包含可放在0~3ff中间任何位置
-       #include "sleep.inc"
+
         org     03ffh                          
         goto    reset                           
         end
