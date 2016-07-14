@@ -1,10 +1,14 @@
 [Project]
 Project=HC-ICE
 [File Count]
-Count=2
+Count=6
 [Project Files]
 File0=HC18P013.INC
-File1=MAIN.ASM
+File1=KEY.INC
+File2=MAIN.ASM
+File3=REG.INC
+File4=SLEEP.INC
+File5=SUB013.INC
 [Settings]
 Device=HC18P010S
 ConfigBitValue0=1
@@ -14,8 +18,12 @@ Output=.
 PostBuild=0
 PostBuildCommand=
 [Files]
-File0=E:\项目\开发中\LIN\013\MAIN.ASM|3 0 928 0 445
-OpenFileCounts=1
+File0=E:\项目\RICK\RGB棒\SOURCE CODE\013\KEY.INC|3 75 957 75 524
+OpenFileCounts=5
+File1=E:\项目\RICK\RGB棒\SOURCE CODE\013\MAIN.ASM|1 0 878 0 445
+File2=E:\项目\RICK\RGB棒\SOURCE CODE\013\SUB013.INC|1 25 907 25 474
+File3=E:\项目\RICK\RGB棒\SOURCE CODE\013\REG.INC|1 50 932 50 499
+File4=E:\项目\RICK\RGB棒\SOURCE CODE\013\SLEEP.INC|1 100 982 100 549
 [Break]
 Count=0
 [Watch0]
