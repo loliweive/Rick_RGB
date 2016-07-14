@@ -10,15 +10,15 @@
 ;CONST defined here
 #define	KEY_DEBOUNCE_TICK	d'8'		;40ms
 #define	KEY_LONGPRESS_TICK	d'250'		;1s+40ms
-#define	CONST_KEY_RELEASE	d'10'	
+#define	CONST_KEY_RELEASE	d'8'	
 ;;IO口初始化        
 #define PORTA_INI	b'00000000'	; PORTA端口初值 
 #define PORTB_INI	b'00000000'	; PORTB端口初值  
 
 #define TRISA_INI	b'00000000'	; PORTA方向初值  0 输出 1输入
-#define TRISB_INI	b'00011000'	; PORTB方向初值
+#define TRISB_INI	b'00011100'	; PORTB方向初值
 ;;;;;010
-#define WPUB_INI	b'11111111'	; 上拉 0 使能 1禁止
+#define WPUB_INI	b'11101011'	; 上拉 0 使能 1禁止
 #define WPD_INI		b'11111111'	; 下拉 0 使能 1禁止 
 ;;;;013
 ;#Define PHCON_INI	b'11101011'	; 上拉 0 使能 1禁止
@@ -65,12 +65,7 @@ flag_byte	equ	0x25
 #define		f_down_breathe	flag_byte,5	;正向和反向呼吸
 #define		f_keylock_long	flag_byte,6	;按键长按标志，防止长按后重复触发
 #define		f_flash		flag_byte,7	;10hz爆闪标志位
-led_byte	equ	0x26
-#define		f_led1		led_byte,0	;充电指示灯点亮标志
-#define		f_led2		led_byte,1	;一档指示灯点亮标志
-#define		f_led3		led_byte,2	;二挡指示灯点亮标志
-#define		f_led4		led_byte,3	;三挡指示灯点亮标志
-key_byte	equ	0x27
+key_byte	equ	0x26
 #define		f_key0		key_byte,0
 #define		f_key1		key_byte,1
 #define		f_key2		key_byte,2
@@ -96,4 +91,13 @@ pclath_temp	    	equ       0x3d
 status_temp     	equ       0x3e
 w_temp          	equ       0x3f        
 ;;;;;ram ends here	
+
+
+;MACRO define here
+VOLON	macro	
+	bsf	Vol
+	endm
 	
+VOLOFF	macro	
+	bcf	Vol
+	endm		

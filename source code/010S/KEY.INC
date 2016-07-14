@@ -6,16 +6,18 @@
 ;************************get_key_value*****************
 
 get_key_value:
-
+#if	1
 	bsf	TRISB,2
-	movlw	d'30'
+	movlw	d'20'
 	movwf	cnt_delay
 	call	Delay10us		;输入输出切换delay，300us
+#endif
 	
 	btfss	Key0
 	bsf	f_key0
 	btfss	Key1
 	bsf	f_key1
+#if	1
 	btfsc	Key2			;Key2的识别模式与另外两个键不同，需要额外加入消抖
 	goto	key2_high_debounce
 key2_low_debounce:
@@ -27,6 +29,8 @@ key2_low_debounce:
 	btfss	C
 	goto	key2_scan_end
 	clrf	cnt_key2_l
+	btfss	f_key2
+	clrf	mode1
 	bsf	f_key2
 	goto	key2_scan_end
 
@@ -39,14 +43,17 @@ key2_high_debounce:
 	btfss	C
 	goto	key2_scan_end
 	clrf	cnt_key2_h
+	btfsc	f_key2
+	clrf	mode1
 	bcf	f_key2
-;	goto	key2_scan_end
+	goto	key2_scan_end
 
 key2_scan_end:
 
+
 	bcf	TRISB,2
 	bsf	PORTB,2			;暂时关灯，输入输出切换回来
-
+#endif
 	movlw	b'00000011'
 	andwf	key_byte,w
 	btfsc	Z
@@ -68,7 +75,7 @@ key_debounce:
 	btfss	C
 	goto	get_key_value_end	
 	clrf	cnt_key_press		;消抖完毕
-	bsf	f_keylock				;短按锁定，或者按键消抖完成标志
+	bsf	f_keylock		;短按锁定，或者按键消抖完成标志
 	goto	get_key_value_end
 	
 key_longpress:
@@ -93,9 +100,12 @@ key_release:
 	btfss	C
 	goto	get_key_value_end
 	clrf	cnt_key_release		;按键释放消抖
+	btfss	f_status_on		;防止睡眠后按键才松开，造成系统即即刻被唤醒
+	bsf	f_sleep
 	btfss	f_keylock_long
-	goto	$+3
+	goto	$+4
 	bcf	f_keylock_long
+	bsf	f_long_press
 	bcf	f_keylock
 	btfss	f_keylock
 	goto	get_key_value_end
@@ -103,8 +113,6 @@ key_release:
 	bsf	f_short_press
 	movf	last_key,w
 	iorwf	key_byte,f		;带上last_key的键值
-	btfss	f_status_on		;防止睡眠后按键才松开，造成系统即即刻被唤醒
-	bsf	f_sleep
 ;	goto	get_key_value_end
 	
 get_key_value_end:
@@ -130,45 +138,67 @@ key_switch:
 
 	addwf	PCL,f
 	goto	key_switch_end		;000
-	goto	key0_proc_mode1		;001
-	goto	key1_proc_mode1		;010
+	goto	key0_proc_mode2		;001
+	goto	key1_proc_mode2		;010
 	goto	keyoff_proc		;011
 	goto	key_switch_end		;100
-	goto	key0_proc_mode2		;101
-	goto	key1_proc_mode2		;110
+	goto	key0_proc_mode1		;101
+	goto	key1_proc_mode1		;110
 	goto	keyoff_proc		;111
 	
 key0_proc_mode2:
 
 	;色调类型+
+	btfsc	f_long_press
+	goto	$+3
+	btfss	f_short_press
+	goto	key_switch_end
 	clrf	mode1
-	movlw	d'19'
-	xorwf	mode2,w			;mode2取值范围0加到19
+	incf	mode2,f			;mode2取值范围0到19循环
+	movlw	d'24'
+	xorwf	mode2,w
 	btfsc	Z
-	incf	mode2,f	
-	goto	key_switch_end	
+	clrf	mode2
+	goto	key_switch_end
 	
 key1_proc_mode2:
 
 	;色调类型-
+	btfsc	f_long_press
+	goto	$+3
+	btfss	f_short_press
+	goto	key_switch_end
 	clrf	mode1
 	movf	mode2,w			;mode2取值范围19减到0
 	btfss	Z
+	goto	$+4
+	movlw	d'23'
+	movwf	mode2
+	goto	key_switch_end	
 	decf	mode2,f
 	goto	key_switch_end
 
 key0_proc_mode1:
 
+	btfsc	f_long_press
+	goto	$+3
+	btfss	f_short_press
+	goto	key_switch_end
 	incf	mode2,f			;mode2取值范围0到19循环
-	movlw	d'20'
+	movlw	d'24'
 	xorwf	mode2,w
 	btfsc	Z
 	clrf	mode2
 	goto	key_switch_end
 	
 key1_proc_mode1:
-	
+
+	btfsc	f_long_press
+	goto	$+3
+	btfss	f_short_press
+	goto	key_switch_end	
 	incf	mode1,f			;mode1取值范围0~3循环
+	bcf	f_down_breathe
 	clrf	cnt_5ms
 	movlw	d'4'
 	xorwf	mode1,w
@@ -180,6 +210,10 @@ keyoff_proc:
 
 	bcf	f_status_on
 	bsf	Vol
+	clrf	mode1
+	clrf	set_red_led_duty
+	clrf	set_green_led_duty
+	clrf	set_blue_led_duty
 	clrf	set_vol_duty
 ;	goto	key_switch_end
 
@@ -189,7 +223,8 @@ key_switch_end:
 	
 key_proc_end:
 
-	clrf	key_byte		;按键处理完后清零按键值
+	movlw	b'00000100'
+	andwf	key_byte,f		;按键处理完后清零按键值
 	return	
 ;-------------------------------------------------
 
