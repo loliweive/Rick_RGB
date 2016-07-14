@@ -8,7 +8,7 @@ sleep_proc:
 	BCF	f_sleep	
 	;关机睡眠前清零计数器和标志位	
 	clrf	mode1
-	clrf	mode2
+;	clrf	mode2		;记忆色调类型
 	bsf	Vol
 	bcf	LedRed
 	bcf	LedGreen
@@ -38,8 +38,8 @@ sleep_proc:
 	BSF	WDTENS		;WDTEN
 	BSF	GIE	
 	bsf	f_status_on
-	bsf	f_keylock			;防止按键在唤醒睡眠的同时重复触发
-	movlw	d'100'
+	bsf	f_keylock_long			;防止按键在唤醒睡眠的同时重复触发
+	movlw	d'64'
 	movwf	set_vol_duty
 	movlw	d'64'
 	movwf	set_red_led_duty
